@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Menu, Container, Button } from "semantic-ui-react";
 
-const NavBar = () => {
+interface Props {
+  openCreateForm: () => void;
+}
+
+const NavBar: React.FC<Props> = ({ openCreateForm }) => {
   const [activeItem, setActiveItem] = useState("home");
 
   const handleItemClick = (
@@ -9,16 +13,16 @@ const NavBar = () => {
   ) => setActiveItem(event.currentTarget.name);
 
   return (
-    <Menu fixed="top" inverted>
+    <Menu inverted>
       <Container>
         <Menu.Item header>Social App</Menu.Item>
         <Menu.Item
           name="Activities"
-          active={activeItem === "home"}
+          active={activeItem === "Activities"}
           onClick={handleItemClick}
         />
         <Menu.Item>
-          <Button positive content="Create Activity" />
+          <Button positive content="Create Activity" onClick={openCreateForm} />
         </Menu.Item>
       </Container>
     </Menu>
