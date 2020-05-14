@@ -8,6 +8,7 @@ interface Props {
   setEditMode: (editMode: boolean) => void;
   createActivity: (activity: Activity) => void;
   editActivity: (activity: Activity) => void;
+  submitting: string | null;
 }
 
 const ActivityForm: React.FC<Props> = ({
@@ -15,6 +16,7 @@ const ActivityForm: React.FC<Props> = ({
   setEditMode,
   createActivity,
   editActivity,
+  submitting,
 }) => {
   const initializeActivity = () =>
     initialActivity
@@ -99,7 +101,14 @@ const ActivityForm: React.FC<Props> = ({
           value={activity.venue}
           name="venue"
         />
-        <Button floated="right" positive type="submit" content="Submit" />
+        <Button
+          name="formSubmit"
+          floated="right"
+          positive
+          type="submit"
+          content="Submit"
+          loading={submitting === "formSubmit"}
+        />
         <Button
           floated="right"
           type="cancel"
