@@ -43,6 +43,8 @@ namespace Application.Activities
                 activity.City = request.City ?? activity.City;
                 activity.Venue = request.Venue ?? activity.Venue;
 
+                //TODO: Not throw error if no changes in request
+
                 var success = await _context.SaveChangesAsync() > 0;
 
                 if (success) return Unit.Value;

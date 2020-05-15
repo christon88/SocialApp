@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Menu, Container, Button } from "semantic-ui-react";
+import { observer } from "mobx-react-lite";
+import ActivityStore from "app/stores/activityStore";
 
-interface Props {
-  openCreateForm: () => void;
-}
-
-const NavBar: React.FC<Props> = ({ openCreateForm }) => {
+const NavBar = () => {
+  const activityStore = useContext(ActivityStore);
+  const { openCreateForm } = activityStore;
   const [activeItem, setActiveItem] = useState("home");
 
   const handleItemClick = (
@@ -29,4 +29,4 @@ const NavBar: React.FC<Props> = ({ openCreateForm }) => {
   );
 };
 
-export default NavBar;
+export default observer(NavBar);
