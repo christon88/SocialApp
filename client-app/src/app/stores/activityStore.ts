@@ -39,6 +39,40 @@ class activityStore {
     }
   };
 
+  @action loadActivity = async (id: string) => {
+    const activity = this.getActivity(id);
+
+    if (activity) {
+      this.selectedActivity = activity;
+    } else {
+      this.loading = true;
+
+      try {
+        const activity = await agent.Activities.details(id);
+        runInAction("Loading activity", () => {
+          const dateTime = activity.date.split(".")[0];
+          const date = dateTime.split("T")[0];
+          const time = dateTime.split("T")[1];
+          this.loading = false;
+          this.selectedActivity = { ...activity, date: date, time: time };
+        });
+      } catch (error) {
+        console.log(error);
+        runInAction("Logging error", () => {
+          this.loading = false;
+        });
+      }
+    }
+  };
+
+  @action clearActivity = () => {
+    this.selectedActivity = null;
+  };
+
+  getActivity = (id: string): Activity => {
+    return this.activities.filter((activity) => activity.id === id)[0];
+  };
+
   @action createActivity = async (activity: Activity) => {
     this.submitting = "formData";
     try {
