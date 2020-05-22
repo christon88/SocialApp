@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import { Grid } from "semantic-ui-react";
 import ActivityList from "./ActivityList";
-//import ActivityStore from "app/stores/activityStore";
 import { observer } from "mobx-react-lite";
+import ActivityStore from "app/stores/activityStore";
 
 const ActivityDashboard = () => {
+  const activityStore = useContext(ActivityStore);
+  useEffect(() => {
+    activityStore.loadActivities();
+  }, [activityStore]);
+
   return (
     <Grid>
       <Grid.Column width={10}>

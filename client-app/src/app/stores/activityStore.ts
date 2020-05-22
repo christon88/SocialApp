@@ -9,7 +9,6 @@ class activityStore {
   @observable activities: Activity[] = [];
   @observable selectedActivity: Activity | null = null;
   @observable loading: boolean = false;
-  @observable editMode: boolean = false;
   @observable submitting: string | null = null;
 
   @computed get sortedActivities() {
@@ -79,7 +78,6 @@ class activityStore {
       await agent.Activities.create(activity);
       runInAction("Creating activity", () => {
         this.activities = [...this.activities, activity];
-        this.editMode = false;
         this.submitting = null;
       });
     } catch (error) {
@@ -102,7 +100,6 @@ class activityStore {
           updatedActivity,
         ];
         this.selectedActivity = updatedActivity;
-        this.editMode = false;
       });
     } catch (error) {
       console.log(error);
@@ -130,32 +127,6 @@ class activityStore {
         this.submitting = null;
       });
     }
-  };
-
-  @action openCreateForm = () => {
-    this.editMode = true;
-    this.selectedActivity = null;
-  };
-
-  @action openEditForm = (id: string) => {
-    this.editMode = true;
-    this.selectedActivity = this.activities.filter(
-      (activity) => activity.id === id
-    )[0];
-  };
-
-  @action cancelSelectedActivity = () => {
-    this.selectedActivity = null;
-  };
-
-  @action cancelFormOpen = () => {
-    this.editMode = false;
-  };
-
-  @action selectActivity = (id: string) => {
-    this.selectedActivity =
-      this.activities.find((activity) => activity.id === id) || null;
-    this.editMode = false;
   };
 }
 

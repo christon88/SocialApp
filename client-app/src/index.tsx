@@ -5,9 +5,11 @@ import App from "./app/layout/App";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter } from "react-router-dom";
 import "mobx-react-lite/batchingForReactDom";
+import ScrollToTop from "./app/layout/ScrollToTop";
 
 ReactDOM.render(
   <BrowserRouter>
+    <ScrollToTop />
     <App />
   </BrowserRouter>,
   document.getElementById("root")
