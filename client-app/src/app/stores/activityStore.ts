@@ -12,9 +12,22 @@ class activityStore {
   @observable submitting: string | null = null;
 
   @computed get sortedActivities() {
-    return this.activities
+    return this.groupActivitiesByDate(this.activities);
+  }
+
+  groupActivitiesByDate(activities: Activity[]) {
+    const sortedActivities = activities
       .slice()
       .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+    return Object.entries(
+      sortedActivities.reduce((activities, activity) => {
+        const date = activity.date;
+        activities[date] = activities[date]
+          ? [...activities[date], activity]
+          : [activity];
+        return activities;
+      }, {} as { [key: string]: Activity[] })
+    );
   }
 
   @action loadActivities = async () => {
