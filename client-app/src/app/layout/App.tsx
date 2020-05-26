@@ -2,29 +2,30 @@ import ActivityDashboard from "features/activities/dashboard/ActivityDashboard";
 import ActivityForm from "features/activities/form/ActivityForm";
 import Home from "features/home/Home";
 import NavBar from "features/nav/NavBar";
-import React, { useContext } from "react";
-import { Route, withRouter, RouteComponentProps } from "react-router-dom";
+import React from "react";
+import {
+  Route,
+  withRouter,
+  RouteComponentProps,
+  Switch,
+} from "react-router-dom";
 import { Container } from "semantic-ui-react";
-import ActivityStore from "../stores/activityStore";
-import LoadingComponent from "./LoadingComponent";
 import ActivityDetails from "features/activities/details/ActivityDetails";
+import NotFound from "./NotFound";
+import { ToastContainer } from "react-toastify";
 
 const App: React.FC<RouteComponentProps> = ({ location }) => {
-  const activityStore = useContext(ActivityStore);
-  const { loading } = activityStore;
-
-  if (loading) {
-    return <LoadingComponent content="Loading activities..." />;
-  } else {
-    return (
-      <>
-        <Route path="/" exact component={Home} />
-        <Route
-          path="/(.+)"
-          render={() => (
-            <>
-              <NavBar />
-              <Container style={{ marginTop: "7em" }}>
+  return (
+    <>
+      <ToastContainer position="bottom-right" />
+      <Route path="/" exact component={Home} />
+      <Route
+        path="/(.+)"
+        render={() => (
+          <>
+            <NavBar />
+            <Container style={{ marginTop: "7em" }}>
+              <Switch>
                 <Route path="/activities" exact component={ActivityDashboard} />
                 <Route path="/activities/:id" component={ActivityDetails} />
                 <Route
@@ -32,13 +33,13 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
                   component={ActivityForm}
                   key={location.key}
                 />
-              </Container>{" "}
-            </>
-          )}
-        />
-      </>
-    );
-  }
+                <Route component={NotFound} />
+              </Switch>
+            </Container>{" "}
+          </>
+        )}
+      />
+    </>
+  );
 };
-
 export default withRouter(App);

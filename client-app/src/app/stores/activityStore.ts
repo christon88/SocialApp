@@ -44,10 +44,10 @@ class activityStore {
         this.loading = false;
       });
     } catch (error) {
-      console.log(error);
       runInAction("Logging error", () => {
         this.loading = false;
       });
+      console.log(error);
     }
   };
 
@@ -69,10 +69,10 @@ class activityStore {
           this.selectedActivity = { ...activity, date: date, time: time };
         });
       } catch (error) {
-        console.log(error);
         runInAction("Logging error", () => {
           this.loading = false;
         });
+        console.log(error);
       }
     }
   };
@@ -94,10 +94,10 @@ class activityStore {
         this.submitting = null;
       });
     } catch (error) {
-      console.log(error);
       runInAction("Creating activity error", () => {
         this.submitting = null;
       });
+      console.log(error);
     }
   };
 
@@ -115,10 +115,10 @@ class activityStore {
         this.selectedActivity = updatedActivity;
       });
     } catch (error) {
-      console.log(error);
       runInAction("Editing activity error", () => {
         this.submitting = null;
       });
+      console.log(error);
     }
   };
 
@@ -135,10 +135,10 @@ class activityStore {
         );
       });
     } catch (error) {
-      console.log(error);
       runInAction("Deleting activity error", () => {
         this.submitting = null;
       });
+      console.log(error);
     }
   };
 }

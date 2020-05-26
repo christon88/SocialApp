@@ -15,7 +15,6 @@ interface RouteParams {
 
 const ActivityDetails: React.FC<RouteComponentProps<RouteParams>> = ({
   match,
-  history,
 }) => {
   const activityStore = useContext(ActivityStore);
   const { selectedActivity: activity, loadActivity, loading } = activityStore;
@@ -26,6 +25,10 @@ const ActivityDetails: React.FC<RouteComponentProps<RouteParams>> = ({
 
   if (loading) {
     return <LoadingComponent>Loading...</LoadingComponent>;
+  }
+
+  if (!activity) {
+    return <h2>Activity not found</h2>;
   }
 
   return (

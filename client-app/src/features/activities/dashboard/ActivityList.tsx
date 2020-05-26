@@ -16,7 +16,7 @@ const ActivityList = () => {
           </Label>
           <Item.Group divided>
             {activities.map((activity) => (
-              <ActivityListItem activity={activity} />
+              <ActivityListItem key={activity.id} activity={activity} />
             ))}
           </Item.Group>
         </React.Fragment>
