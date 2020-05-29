@@ -24,9 +24,8 @@ axios.interceptors.response.use(undefined, (error: AxiosError) => {
     }
     if (status === 500) {
       toast.error(error.message);
-    } else {
-      throw error;
     }
+    throw error;
   }
 });
 

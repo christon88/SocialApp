@@ -2,6 +2,8 @@ import { observable, action, computed, configure, runInAction } from "mobx";
 import { createContext, SyntheticEvent } from "react";
 import { Activity } from "../models/activity";
 import agent from "../api/agent";
+import { history } from "../..";
+import { toast } from "react-toastify";
 
 configure({ enforceActions: "always" });
 
@@ -18,10 +20,10 @@ class activityStore {
   groupActivitiesByDate(activities: Activity[]) {
     const sortedActivities = activities
       .slice()
-      .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
     return Object.entries(
       sortedActivities.reduce((activities, activity) => {
-        const date = activity.date;
+        const date = activity.date.toISOString().split("T")[0];
         activities[date] = activities[date]
           ? [...activities[date], activity]
           : [activity];
@@ -36,10 +38,8 @@ class activityStore {
       const response = await agent.Activities.list();
       runInAction("Loading activities", () => {
         this.activities = response.map((activity) => {
-          const dateTime = activity.date.split(".")[0];
-          const date = dateTime.split("T")[0];
-          const time = dateTime.split("T")[1];
-          return { ...activity, date: date, time: time };
+          const date = new Date(activity.date);
+          return { ...activity, date: date };
         });
         this.loading = false;
       });
@@ -56,18 +56,18 @@ class activityStore {
 
     if (activity) {
       this.selectedActivity = activity;
+      return this.selectedActivity;
     } else {
       this.loading = true;
 
       try {
-        const activity = await agent.Activities.details(id);
+        const currentActivity = await agent.Activities.details(id);
         runInAction("Loading activity", () => {
-          const dateTime = activity.date.split(".")[0];
-          const date = dateTime.split("T")[0];
-          const time = dateTime.split("T")[1];
+          const date = new Date(currentActivity.date);
           this.loading = false;
-          this.selectedActivity = { ...activity, date: date, time: time };
+          this.selectedActivity = { ...currentActivity, date: date };
         });
+        return this.selectedActivity;
       } catch (error) {
         runInAction("Logging error", () => {
           this.loading = false;
@@ -78,7 +78,15 @@ class activityStore {
   };
 
   @action clearActivity = () => {
-    this.selectedActivity = null;
+    this.selectedActivity = {
+      id: "",
+      title: "",
+      description: "",
+      category: "",
+      date: new Date(),
+      city: "",
+      venue: "",
+    };
   };
 
   getActivity = (id: string): Activity => {
@@ -93,11 +101,13 @@ class activityStore {
         this.activities = [...this.activities, activity];
         this.submitting = null;
       });
+      history.push(`/activities/${activity.id}`);
     } catch (error) {
       runInAction("Creating activity error", () => {
         this.submitting = null;
       });
-      console.log(error);
+      toast.error("Problem submitting data");
+      console.log(error.response);
     }
   };
 
@@ -113,12 +123,15 @@ class activityStore {
           updatedActivity,
         ];
         this.selectedActivity = updatedActivity;
+        this.submitting = null;
       });
+      history.push(`/activities/${updatedActivity.id}`);
     } catch (error) {
       runInAction("Editing activity error", () => {
         this.submitting = null;
       });
-      console.log(error);
+      toast.error("Problem submitting data");
+      console.log(error.response);
     }
   };
 
@@ -133,6 +146,7 @@ class activityStore {
         this.activities = this.activities.filter(
           (activity) => activity.id !== id
         );
+        this.submitting = null;
       });
     } catch (error) {
       runInAction("Deleting activity error", () => {

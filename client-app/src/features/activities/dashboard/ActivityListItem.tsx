@@ -2,6 +2,7 @@ import React from "react";
 import { Item, Button, Segment, Icon } from "semantic-ui-react";
 import { Activity } from "app/models/activity";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 
 interface Props {
   activity: Activity;
@@ -22,7 +23,7 @@ const ActivityListItem: React.FC<Props> = ({ activity }) => {
         </Item.Group>
       </Segment>
       <Segment>
-        <Icon name="clock" /> {activity.date}
+        <Icon name="clock" /> {format(activity.date, "h:mm")}
         <Icon name="marker" /> {activity.venue}, {activity.city}
       </Segment>
       <Segment secondary>Attendees willl go here</Segment>
