@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Segment, Form, Button, Grid } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
-import ActivityStore from "app/stores/activityStore";
 import { observer } from "mobx-react-lite";
 import { RouteComponentProps } from "react-router-dom";
 import { Activity } from "app/models/activity";
@@ -12,6 +11,7 @@ import SelectInput from "app/common/form/SelectInput";
 import DateInput from "app/common/form/DateInput";
 import { category } from "app/common/options/categoryOptions";
 import { combineValidators, isRequired } from "revalidate";
+import { RootStoreContext } from "app/stores/rootStore";
 
 const validate = combineValidators({
   title: isRequired({ message: "Please enter a title" }),
@@ -30,13 +30,13 @@ const ActivityForm: React.FC<RouteComponentProps<RouteParams>> = ({
   match,
   history,
 }) => {
-  const activityStore = useContext(ActivityStore);
+  const rootStore = useContext(RootStoreContext);
   const {
     createActivity,
     submitting,
     editActivity,
     loadActivity,
-  } = activityStore;
+  } = rootStore.activityStore;
 
   const emptyActivity: Activity = {
     id: "",
