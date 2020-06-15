@@ -12,6 +12,7 @@ import DateInput from "app/common/form/DateInput";
 import { category } from "app/common/options/categoryOptions";
 import { combineValidators, isRequired } from "revalidate";
 import { RootStoreContext } from "app/stores/rootStore";
+import createAttendee from "app/common/util/createAttendee";
 
 const validate = combineValidators({
   title: isRequired({ message: "Please enter a title" }),
@@ -37,6 +38,7 @@ const ActivityForm: React.FC<RouteComponentProps<RouteParams>> = ({
     editActivity,
     loadActivity,
   } = rootStore.activityStore;
+  const { user } = rootStore.userStore;
 
   const emptyActivity: Activity = {
     id: "",
@@ -46,6 +48,9 @@ const ActivityForm: React.FC<RouteComponentProps<RouteParams>> = ({
     date: new Date(),
     city: "",
     venue: "",
+    isGoing: true,
+    isHost: true,
+    attendees: [createAttendee(user!, true)],
   };
 
   const [activity, setActivity] = useState<Activity>(emptyActivity);

@@ -6,4 +6,14 @@ export interface Activity {
   date: Date;
   city: string;
   venue: string;
+  isGoing: boolean;
+  isHost: boolean;
+  attendees: Attendee[];
+}
+
+export interface Attendee {
+  username: string;
+  displayName: string;
+  image?: string;
+  isHost: boolean;
 }

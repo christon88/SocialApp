@@ -1,23 +1,51 @@
 import React from "react";
-import { Item, Button, Segment, Icon } from "semantic-ui-react";
+import { Item, Button, Segment, Icon, Label } from "semantic-ui-react";
 import { Activity } from "app/models/activity";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import ActivityListItemAttendees from "./ActivityListItemAttendees";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   activity: Activity;
 }
 
 const ActivityListItem: React.FC<Props> = ({ activity }) => {
+  const hostName = activity.attendees.filter((attendee) => attendee.isHost)[0]
+    .displayName;
   return (
     <Segment.Group>
       <Segment>
         <Item.Group>
           <Item>
-            <Item.Image size="tiny" circular src="assets/user.png" />
+            <Item.Image
+              size="tiny"
+              circular
+              src={`/assets/categoryImages/${activity.category}_squared.jpg`}
+            />
             <Item.Content>
-              <Item.Header as="a">{activity.title}</Item.Header>
-              <Item.Description>Hosted By Bob</Item.Description>
+              <Item.Header as={Link} to={`/activities/${activity.id}`}>
+                {activity.title}
+              </Item.Header>
+              <Item.Description>{`Hosted By ${hostName}`}</Item.Description>
+              {activity.isHost && (
+                <Item.Description>
+                  <Label
+                    basic
+                    color="orange"
+                    content="You are hosting this activity"
+                  />
+                </Item.Description>
+              )}
+              {activity.isGoing && !activity.isHost && (
+                <Item.Description>
+                  <Label
+                    basic
+                    color="green"
+                    content="You are going to this activity"
+                  />
+                </Item.Description>
+              )}
             </Item.Content>
           </Item>
         </Item.Group>
@@ -26,7 +54,9 @@ const ActivityListItem: React.FC<Props> = ({ activity }) => {
         <Icon name="clock" /> {format(activity.date, "h:mm")}
         <Icon name="marker" /> {activity.venue}, {activity.city}
       </Segment>
-      <Segment secondary>Attendees willl go here</Segment>
+      <Segment secondary>
+        <ActivityListItemAttendees attendees={activity.attendees} />
+      </Segment>
       <Segment clearing>
         <span>{activity.description}</span>
         <Button
@@ -41,4 +71,4 @@ const ActivityListItem: React.FC<Props> = ({ activity }) => {
   );
 };
 
-export default ActivityListItem;
+export default observer(ActivityListItem);

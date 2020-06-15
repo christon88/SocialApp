@@ -5,6 +5,8 @@ import agent from "../api/agent";
 import { history } from "../..";
 import { toast } from "react-toastify";
 import { RootStore } from "./rootStore";
+import setActivityProps from "app/common/util/setActivityProps";
+import createAttendee from "app/common/util/createAttendee";
 
 class ActivityStore {
   rootStore: RootStore;
@@ -14,8 +16,9 @@ class ActivityStore {
 
   @observable activities: Activity[] = [];
   @observable selectedActivity: Activity | null = null;
-  @observable loading: boolean = false;
+  @observable initialLoading: boolean = false;
   @observable submitting: string | null = null;
+  @observable loading = false;
 
   @computed get sortedActivities() {
     return this.groupActivitiesByDate(this.activities);
@@ -37,19 +40,20 @@ class ActivityStore {
   }
 
   @action loadActivities = async () => {
-    this.loading = true;
+    this.initialLoading = true;
     try {
       const response = await agent.Activities.list();
       runInAction("Loading activities", () => {
         this.activities = response.map((activity) => {
           const date = new Date(activity.date);
+          setActivityProps(activity, this.rootStore.userStore.user);
           return { ...activity, date: date };
         });
-        this.loading = false;
+        this.initialLoading = false;
       });
     } catch (error) {
       runInAction("Logging error", () => {
-        this.loading = false;
+        this.initialLoading = false;
       });
       console.log(error);
     }
@@ -62,19 +66,20 @@ class ActivityStore {
       this.selectedActivity = activity;
       return this.selectedActivity;
     } else {
-      this.loading = true;
+      this.initialLoading = true;
 
       try {
         const currentActivity = await agent.Activities.details(id);
         runInAction("Loading activity", () => {
           const date = new Date(currentActivity.date);
-          this.loading = false;
+          setActivityProps(currentActivity, this.rootStore.userStore.user);
+          this.initialLoading = false;
           this.selectedActivity = { ...currentActivity, date: date };
         });
         return this.selectedActivity;
       } catch (error) {
         runInAction("Logging error", () => {
-          this.loading = false;
+          this.initialLoading = false;
         });
         console.log(error);
       }
@@ -90,6 +95,9 @@ class ActivityStore {
       date: new Date(),
       city: "",
       venue: "",
+      isGoing: false,
+      isHost: false,
+      attendees: [],
     };
   };
 
@@ -157,6 +165,61 @@ class ActivityStore {
         this.submitting = null;
       });
       console.log(error);
+    }
+  };
+
+  @action attendActivity = async () => {
+    const attendee = createAttendee(this.rootStore.userStore.user!, false);
+    try {
+      this.loading = true;
+      await agent.Activities.attend(this.selectedActivity!.id);
+      runInAction(() => {
+        if (this.selectedActivity) {
+          this.selectedActivity.attendees.push(attendee);
+          this.selectedActivity.isGoing = true;
+          this.activities = [
+            ...this.activities.filter(
+              (activity) => activity.id !== this.selectedActivity!.id
+            ),
+            this.selectedActivity,
+          ];
+          this.loading = false;
+        }
+      });
+    } catch (error) {
+      runInAction(() => {
+        toast.error("Problem signing up to activity");
+        this.loading = false;
+      });
+    }
+  };
+
+  @action cancelAttendance = async () => {
+    this.loading = true;
+    try {
+      await agent.Activities.unAttend(this.selectedActivity!.id);
+      runInAction(() => {
+        if (this.selectedActivity) {
+          this.selectedActivity.attendees = this.selectedActivity.attendees.filter(
+            (attendee) =>
+              attendee.username !== this.rootStore.userStore.user?.username
+          );
+          this.selectedActivity.isGoing = false;
+
+          this.activities = [
+            ...this.activities.filter(
+              (activity) => activity.id !== this.selectedActivity!.id
+            ),
+            this.selectedActivity,
+          ];
+        }
+        this.loading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        toast.error("Problem cancelling attendance");
+        this.loading = false;
+      });
     }
   };
 }
