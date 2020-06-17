@@ -19,6 +19,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using AutoMapper;
+using Infrastructure.Photos;
 
 namespace API
 {
@@ -92,6 +93,8 @@ namespace API
 
             services.AddScoped<IJWTGenerator, JWTGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IPhotoAccessor, PhotoAccesssor>();
+            services.Configure<ImageStorageSettings>(Configuration.GetSection("Azure"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
