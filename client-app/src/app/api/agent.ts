@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { Activity } from "../models/activity";
+import { Profile, Photo } from "../models/profile";
 import { history } from "../..";
 import { toast } from "react-toastify";
 import { User, UserFormValues } from "app/models/user";
@@ -50,7 +51,7 @@ const sleep = (ms: number) => (response: AxiosResponse) =>
     setTimeout(() => resolve(response), ms)
   );
 
-const reqests = {
+const requests = {
   get: (url: string) =>
     axios.get(url).then(sleep(timeoutMS)).then(responseBody),
   post: (url: string, body: {}) =>
@@ -59,25 +60,43 @@ const reqests = {
     axios.put(url, body).then(sleep(timeoutMS)).then(responseBody),
   delete: (url: string) =>
     axios.delete(url).then(sleep(timeoutMS)).then(responseBody),
+  postForm: (url: string, file: Blob) => {
+    let formData = new FormData();
+    formData.append("File", file);
+    return axios
+      .post(url, formData, {
+        headers: { "Content-type": "multipart/form-data" },
+      })
+      .then(responseBody);
+  },
 };
 
 const Activities = {
-  list: (): Promise<Activity[]> => reqests.get("/activities"),
-  details: (id: string) => reqests.get(`/activities/${id}`),
-  create: (activity: Activity) => reqests.post(`/activities/`, activity),
+  list: (): Promise<Activity[]> => requests.get("/activities"),
+  details: (id: string) => requests.get(`/activities/${id}`),
+  create: (activity: Activity) => requests.post(`/activities/`, activity),
   update: (activity: Activity) =>
-    reqests.put(`/activities/${activity.id}`, activity),
-  delete: (id: string) => reqests.delete(`/activities/${id}`),
-  attend: (id: string) => reqests.post(`/activities/${id}/attend`, {}),
-  unAttend: (id: string) => reqests.delete(`/activities/${id}/attend`),
+    requests.put(`/activities/${activity.id}`, activity),
+  delete: (id: string) => requests.delete(`/activities/${id}`),
+  attend: (id: string) => requests.post(`/activities/${id}/attend`, {}),
+  unAttend: (id: string) => requests.delete(`/activities/${id}/attend`),
 };
 
 const Users = {
-  current: (): Promise<User> => reqests.get("/user"),
+  current: (): Promise<User> => requests.get("/user"),
   login: (user: UserFormValues): Promise<User> =>
-    reqests.post("/user/login", user),
+    requests.post("/user/login", user),
   register: (user: UserFormValues): Promise<User> =>
-    reqests.post("/user/register", user),
+    requests.post("/user/register", user),
 };
 
-export default { Activities, Users };
+const Profiles = {
+  get: (username: string): Promise<Profile> =>
+    requests.get(`/profiles/${username}`),
+  uploadPhoto: (photo: Blob): Promise<Photo> =>
+    requests.postForm("/photos", photo),
+  setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
+  deletePhoto: (id: string) => requests.delete(`/photos/${id}`),
+};
+
+export default { Activities, Users, Profiles };

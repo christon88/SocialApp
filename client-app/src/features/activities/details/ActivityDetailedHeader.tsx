@@ -24,7 +24,7 @@ const ActivityDetailedHeader: React.FC<{ activity: Activity }> = ({
 }) => {
   const rootStore = useContext(RootStoreContext);
   const { cancelAttendance, attendActivity, loading } = rootStore.activityStore;
-
+  const host = activity.attendees.filter((attendee) => attendee.isHost)[0];
   return (
     <Segment.Group>
       <Segment basic attached="top" style={{ padding: "0" }}>
@@ -43,7 +43,12 @@ const ActivityDetailedHeader: React.FC<{ activity: Activity }> = ({
                   style={{ color: "white" }}
                 />
                 <p>{format(activity.date, "eeee do MMMM")}</p>
-                <p>Hosted by Christian</p>
+                <p>
+                  Hosted by{" "}
+                  <Link to={`/profile/${host.username} `}>
+                    {host.displayName}
+                  </Link>
+                </p>
               </Item.Content>
             </Item>
           </Item.Group>

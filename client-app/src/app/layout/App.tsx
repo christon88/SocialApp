@@ -2,6 +2,7 @@ import ActivityDashboard from "features/activities/dashboard/ActivityDashboard";
 import ActivityForm from "features/activities/form/ActivityForm";
 import Home from "features/home/Home";
 import NavBar from "features/nav/NavBar";
+import ProfilePage from "features/profiles/ProfilePage";
 import React, { useContext, useEffect } from "react";
 import {
   Route,
@@ -52,6 +53,7 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
                   component={ActivityForm}
                   key={location.key}
                 />
+                <Route path="/profile/:username" component={ProfilePage} />
                 <Route component={NotFound} />
               </Switch>
             </Container>{" "}

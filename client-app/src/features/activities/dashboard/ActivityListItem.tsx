@@ -11,8 +11,7 @@ interface Props {
 }
 
 const ActivityListItem: React.FC<Props> = ({ activity }) => {
-  const hostName = activity.attendees.filter((attendee) => attendee.isHost)[0]
-    .displayName;
+  const host = activity.attendees.filter((attendee) => attendee.isHost)[0];
   return (
     <Segment.Group>
       <Segment>
@@ -22,12 +21,18 @@ const ActivityListItem: React.FC<Props> = ({ activity }) => {
               size="tiny"
               circular
               src={`/assets/categoryImages/${activity.category}_squared.jpg`}
+              style={{ marginBottom: 5 }}
             />
             <Item.Content>
               <Item.Header as={Link} to={`/activities/${activity.id}`}>
                 {activity.title}
               </Item.Header>
-              <Item.Description>{`Hosted By ${hostName}`}</Item.Description>
+              <Item.Description>
+                Hosted By{" "}
+                <Link to={`/profile/${host.username} `}>
+                  {host.displayName}
+                </Link>
+              </Item.Description>
               {activity.isHost && (
                 <Item.Description>
                   <Label
