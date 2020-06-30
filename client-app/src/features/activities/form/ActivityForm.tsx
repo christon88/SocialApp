@@ -47,6 +47,7 @@ const ActivityForm: React.FC<RouteComponentProps<RouteParams>> = ({
     category: "",
     date: new Date(),
     city: "",
+    comments: [],
     venue: "",
     isGoing: true,
     isHost: true,

@@ -20,6 +20,8 @@ using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using AutoMapper;
 using Infrastructure.Photos;
+using API.SignalR;
+using System.Threading.Tasks;
 
 namespace API
 {
@@ -44,12 +46,13 @@ namespace API
            {
                opt.AddPolicy("CorsPolicy", policy =>
                {
-                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000").AllowCredentials();
                });
 
            });
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler));
+            services.AddSignalR();
             services.AddControllers(
                 opt =>
                 {
@@ -74,6 +77,19 @@ namespace API
                     IssuerSigningKey = key,
                     ValidateAudience = false,
                     ValidateIssuer = false
+                };
+                opt.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accesToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accesToken) && (path.StartsWithSegments("/chat")))
+                        {
+                            context.Token = accesToken;
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
@@ -118,6 +134,7 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chat");
             });
         }
     }

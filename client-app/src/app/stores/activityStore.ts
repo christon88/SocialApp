@@ -7,6 +7,11 @@ import { toast } from "react-toastify";
 import { RootStore } from "./rootStore";
 import setActivityProps from "app/common/util/setActivityProps";
 import createAttendee from "app/common/util/createAttendee";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
 
 class ActivityStore {
   rootStore: RootStore;
@@ -19,6 +24,55 @@ class ActivityStore {
   @observable initialLoading: boolean = false;
   @observable submitting: string | null = null;
   @observable loading = false;
+  @observable.ref hubConnection: HubConnection | null = null;
+
+  @action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5000/chat", {
+        accessTokenFactory: () => this.rootStore.commonStore.token!,
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => console.log(this.hubConnection?.state))
+      .then(() => {
+        console.log("Attempting to join group");
+        this.hubConnection!.invoke("AddToGroup", this.selectedActivity!.id);
+      })
+      .catch((error) => console.log("Error establishing connection: ", error));
+
+    this.hubConnection.on("ReceiveComment", (comment) => {
+      runInAction(() => {
+        this.selectedActivity!.comments.push(comment);
+      });
+    });
+
+    this.hubConnection.on("Send", (message) => {
+      toast.info(message);
+    });
+  };
+
+  @action stopHubConnection = () => {
+    this.hubConnection
+      ?.invoke("RemoveFromGroup", this.selectedActivity?.id)
+      .then(() => {
+        this.hubConnection?.stop();
+      })
+      .then(() => console.log("Connection stopped"))
+      .catch((err) => console.log(err));
+  };
+
+  @action addComment = async (values: any) => {
+    values.activityId = this.selectedActivity?.id;
+
+    try {
+      await this.hubConnection?.invoke("SendComment", values);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   @computed get sortedActivities() {
     return this.groupActivitiesByDate(this.activities);
@@ -94,6 +148,7 @@ class ActivityStore {
       category: "",
       date: new Date(),
       city: "",
+      comments: [],
       venue: "",
       isGoing: false,
       isHost: false,
