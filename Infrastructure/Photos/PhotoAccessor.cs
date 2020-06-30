@@ -12,14 +12,14 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Photos
 {
-    public class PhotoAccesssor : IPhotoAccessor
+    public class PhotoAccessor : IPhotoAccessor
     {
         private string connectionString { get; set; }
         private readonly string containerName = "image-share";
         private readonly string blobName = Guid.NewGuid().ToString();
         public BlobServiceClient blobServiceClient { get; set; }
         public BlobContainerClient containerClient { get; set; }
-        public PhotoAccesssor(IOptions<ImageStorageSettings> config)
+        public PhotoAccessor(IOptions<ImageStorageSettings> config)
         {
             connectionString = config.Value.ConnectionString;
             blobServiceClient = new BlobServiceClient(connectionString);
