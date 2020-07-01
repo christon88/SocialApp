@@ -5,7 +5,7 @@ import { history } from "../..";
 import { toast } from "react-toastify";
 import { User, UserFormValues } from "app/models/user";
 
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 axios.interceptors.request.use(
   (config) => {
@@ -44,7 +44,7 @@ axios.interceptors.response.use(undefined, (error: AxiosError) => {
 
 const responseBody = (response: AxiosResponse) => response.data;
 
-const timeoutMS = 1000;
+const timeoutMS = 0; // Increase to simulate loading
 
 const sleep = (ms: number) => (response: AxiosResponse) =>
   new Promise<AxiosResponse>((resolve) =>
