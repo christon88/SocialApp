@@ -2,12 +2,16 @@ import React, { useEffect, useContext } from "react";
 import { Grid } from "semantic-ui-react";
 import ActivityList from "./ActivityList";
 import { observer } from "mobx-react-lite";
-import LoadingComponent from "app/layout/LoadingComponent";
+import ActivityListItemPlaceholder from "./ActivityListItemPlaceholder";
 import { RootStoreContext } from "app/stores/rootStore";
 
 const ActivityDashboard = () => {
   const rootStore = useContext(RootStoreContext);
-  const { loadActivities, loading, activities } = rootStore.activityStore;
+  const {
+    loadActivities,
+    initialLoading,
+    activities,
+  } = rootStore.activityStore;
 
   useEffect(() => {
     if (activities.length === 0) {
@@ -15,12 +19,10 @@ const ActivityDashboard = () => {
     }
   }, [loadActivities, activities.length]);
 
-  if (loading) return <LoadingComponent content="Loading activities..." />;
-
   return (
     <Grid>
       <Grid.Column width={10}>
-        <ActivityList />
+        {initialLoading ? <ActivityListItemPlaceholder /> : <ActivityList />}
       </Grid.Column>
       <Grid.Column width={6}>
         <h2>Placeholder Filters</h2>

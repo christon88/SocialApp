@@ -16,6 +16,7 @@ import NotFound from "./NotFound";
 import { ToastContainer } from "react-toastify";
 import { RootStoreContext } from "app/stores/rootStore";
 import LoadingComponent from "./LoadingComponent";
+import PrivateRoute from "./PrivateRoute";
 import ModalContainer from "../common/modals/ModalContainer";
 import { observer } from "mobx-react-lite";
 
@@ -46,15 +47,25 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
             <NavBar />
             <Container style={{ marginTop: "7em" }}>
               <Switch>
-                <Route path="/activities" exact component={ActivityDashboard} />
-                <Route path="/activities/:id" component={ActivityDetails} />
-                <Route
+                <PrivateRoute
+                  path="/activities"
+                  exact
+                  component={ActivityDashboard}
+                />
+                <PrivateRoute
+                  path="/activities/:id"
+                  component={ActivityDetails}
+                />
+                <PrivateRoute
                   path={["/createActivity", "/manage/:id"]}
                   component={ActivityForm}
                   key={location.key}
                 />
-                <Route path="/profile/:username" component={ProfilePage} />
-                <Route component={NotFound} />
+                <PrivateRoute
+                  path="/profile/:username"
+                  component={ProfilePage}
+                />
+                <PrivateRoute component={NotFound} />
               </Switch>
             </Container>{" "}
           </>
