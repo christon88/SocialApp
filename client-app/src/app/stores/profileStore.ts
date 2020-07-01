@@ -12,9 +12,12 @@ class ProfileStore {
 
   @observable profile: Profile | null = null;
   @observable loadingProfile = false;
+  @observable loadingFollow = false;
   @observable uploadingPhoto = false;
   @observable settingMainPhoto: string | null = null;
   @observable deletingPhoto: string | null = null;
+  @observable followings: Profile[] = [];
+
   @computed get isCurrentUser() {
     return this.profile?.username === this.rootStore.userStore.user?.username;
   }
@@ -97,6 +100,59 @@ class ProfileStore {
       toast.error("Problem deleting photo");
       runInAction(() => {
         this.deletingPhoto = null;
+      });
+    }
+  };
+
+  @action follow = async (username: string) => {
+    this.loadingFollow = true;
+    try {
+      await agent.Profiles.follow(username);
+      runInAction(() => {
+        this.profile!.following = true;
+        this.profile!.followersCount += 1;
+        this.loadingFollow = false;
+      });
+    } catch (error) {
+      toast.error("problem following user");
+      runInAction(() => {
+        this.loadingFollow = false;
+      });
+    }
+  };
+
+  @action unfollow = async (username: string) => {
+    this.loadingFollow = true;
+    try {
+      await agent.Profiles.unfollow(username);
+      runInAction(() => {
+        this.profile!.following = false;
+        this.profile!.followersCount -= 1;
+        this.loadingFollow = false;
+      });
+    } catch (error) {
+      toast.error("problem unfollowing user");
+      runInAction(() => {
+        this.loadingFollow = false;
+      });
+    }
+  };
+
+  @action loadFollowings = async (predicate: "following" | "followers") => {
+    this.loadingFollow = true;
+    try {
+      const profiles = await agent.Profiles.listFollowings(
+        this.profile!.username,
+        predicate
+      );
+      runInAction(() => {
+        this.followings = profiles;
+        this.loadingFollow = false;
+      });
+    } catch (error) {
+      toast.error("problem loading followings");
+      runInAction(() => {
+        this.loadingFollow = false;
       });
     }
   };

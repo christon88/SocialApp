@@ -6,6 +6,11 @@ interface Props {
   attendees: Attendee[];
 }
 
+const styles = {
+  borderColor: "orange",
+  borderSize: 2,
+};
+
 const ActivityListItemAttendees: React.FC<Props> = ({ attendees }) => {
   return (
     <List horizontal>
@@ -18,6 +23,8 @@ const ActivityListItemAttendees: React.FC<Props> = ({ attendees }) => {
                 size="mini"
                 circular
                 src={attendee.image || "/assets/user.png"}
+                bordered
+                style={attendee.following ? styles : null}
               />
             }
           />

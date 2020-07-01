@@ -24,6 +24,7 @@ export interface Comment {
 export interface Attendee {
   username: string;
   displayName: string;
-  image?: string;
   isHost: boolean;
+  image?: string;
+  following?: boolean;
 }

@@ -16,7 +16,7 @@ const ProfilePhotos = () => {
     deletePhoto,
     deletingPhoto,
   } = rootStore.profileStore;
-  const [addPhotoMode, setAddPhotoMode] = useState(true); //should be false
+  const [addPhotoMode, setAddPhotoMode] = useState(false);
 
   const handleUploadImage = (photo: Blob) => {
     uploadPhoto(photo).then(() => setAddPhotoMode(false));
